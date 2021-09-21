@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testservice-deployment
+  labels:
+    app: testpart1
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: testpart1
+      labels:
+        app: testpart1
+    spec:
+      containers:
+      - name: test
+        image: testpart1.azurecr.io/testservice
+  selector:
+    matchLabels:
+      app: testpart1
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: testservice-service
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "api-gateway-subnet"
+spec:
+  type: LoadBalancer
+  selector:
+    app: testpart1
+  ports:
+  - port: 80
+    targetPort: 8080
+#
